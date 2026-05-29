@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Bookstore.Data;
 using Bookstore.Domain.Products;
-using Microsoft.Data.SqlClient;
 
 namespace Bookstore.Web.Controllers
 {
@@ -30,13 +29,10 @@ namespace Bookstore.Web.Controllers
         {
             try
             {
-                string sql = @"EXEC [dbo].[uspGetProductData];";
-
-                return await _context.Database.SqlQueryRaw<Product>(sql).ToListAsync();
+                return await _context.Product.ToListAsync();
             }
             catch (Exception ex)
             {
-                // Log the error or handle it as needed
                 Console.WriteLine(ex.ToString());
                 return new List<Product>();
             }
