@@ -5,7 +5,7 @@ using Amazon.SecretsManager;
 using Bookstore.Data;
 using Bookstore.Domain.AdminUser;
 using Microsoft.AspNetCore.Builder;
-using Npgsql;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -31,7 +31,7 @@ namespace Bookstore.Web.Startup
             builder.Services.AddAWSService<IAmazonRekognition>();
 
             var connString = GetDatabaseConnectionString(builder.Configuration);
-            builder.Services.AddDbContext<ApplicationDbContext>(option => option.UseNpgsql(connString));
+            builder.Services.AddDbContext<ApplicationDbContext>(option => option.UseSqlServer(connString));
             builder.Services.AddSession();
  
             return builder;
@@ -88,12 +88,11 @@ namespace Bookstore.Web.Startup
                     PropertyNameCaseInsensitive = true
                 });
 
-                var builder = new NpgsqlConnectionStringBuilder
+                var partialConnString = $"Server={dbSecrets.Host},{dbSecrets.Port}; Initial Catalog=BobsUsedBookStore;MultipleActiveResultSets=true; Integrated Security=false;TrustServerCertificate=True\r\n";
+
+                var builder = new SqlConnectionStringBuilder(partialConnString)
                 {
-                    Host = dbSecrets.Host,
-                    Port = dbSecrets.Port,
-                    Database = "BobsUsedBookStore",
-                    Username = dbSecrets.Username,
+                    UserID = dbSecrets.Username,
                     Password = dbSecrets.Password
                 };
 
